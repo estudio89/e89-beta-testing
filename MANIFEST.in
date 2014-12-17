@@ -1,0 +1,3 @@
+include README.txt
+recursive-include e89_beta_testing/static *
+recursive-include e89_beta_testing/templates *

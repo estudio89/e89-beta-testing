@@ -1,0 +1,296 @@
+{% extends 'e89_beta_testing/base.html' %}
+{% load widget_tweaks %}
+
+{% block head %}
+<link rel="stylesheet" type="text/css" href="/static/e89_beta_testing/js/libs/datatables/css/jquery.dataTables.css">
+<style>
+	.content {
+		margin-left: 0 !important;
+		height: calc(100% - 34px) !important;
+	}
+	.texto-email {
+		height: 300px;
+		overflow-y: scroll;
+	}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="content">
+	<div class="row text-center">
+		<h1>Beta Testers</h1>
+		<br>
+		<br>
+	</div>
+	<div class="row">
+		<div class="col-md-12">
+			<div class="panel panel-default">
+				<div class="panel-heading clearfix">
+					<h3 class="panel-title">Beta testers cadastrados</h3>
+				</div>
+				<div class="table-responsive">
+					<table class="table" id="table-testers">
+						<thead>
+							<th></th>
+							<th>E-mail</th>
+							<th>Telefone</th>
+							<th>UDID</th>
+							<th>Plataforma</th>
+							<th>Usuário</th>
+						</thead>
+						<tbody>
+							{% for tester in testers %}
+							<tr>
+								<td><input type="checkbox" class='check-beta' name="beta_tester" value="{{ tester.id }}"></td>
+								<td>{{ tester.email }}</td>
+								<td>{{ tester.phone }}</td>
+								<td>{{ tester.udid|default:"-" }}</td>
+								<td>{{ tester.get_platform_display }}</td>
+								<td>{{ tester.name }}</td>
+							</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-md-12">
+			<div class="panel panel-default">
+				<div class="panel-heading clearfix">
+					<h3 class="panel-title">Versões beta disponíveis (ios)</h3>
+				</div>
+				<div class="table-responsive">
+					<table class="table" id="table-ipa">
+						<thead>
+							<th>IPA</th>
+							<th>Plist</th>
+							<th>Link Dropbox</th>
+							<th></th>
+						</thead>
+						<tbody>
+							{% for app in beta_apps %}
+							<tr class="row-app" data-object='{"id": {{ app.id }} }'>
+								<td>{{ app.get_ipa_filename }}</td>
+								<td>{{ app.get_plist_filename }}</td>
+								<td>{{ app.plist_url }}</td>
+								<td><a class="btn btn-danger excluir-beta-app"><i class="fa fa-trash-o"></i></a></td>
+							{% endfor %}
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-md-4 btn-group text-right">
+			<a data-toggle="modal" href='#modal-ipa' class="btn btn-success">Adicionar versão beta (iOS)</a>
+			<button type="button" id='btn-enviar-link-ios' class="btn btn-default" style="color: #fff;background-color: #428bca;border-color: #357ebd;">Enviar link (iOS)</button>
+			<button type="button" id='btn-enviar-link-android' class="btn btn-primary">Enviar link (Android)</button>
+		</div>
+	</div>
+
+</div>
+
+<!--============================================ Modal - IPA ============================================-->
+<div class="modal fade" id="modal-ipa">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">Adicionar IPA</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6 center-block">
+                        <form action="" method="POST" role="form" id="form-ipa" enctype="multipart/form-data">
+							{% csrf_token %}
+                            <div class="row form-row">
+                                <div class="form-group">
+                                    <label for="" class="col-md-12 control-label">Arquivo .ipa</label>
+                                    <div class="col-md-12">
+                                        {% render_field form.ipa class='form-control required' accept='.ipa' %}
+                                    </div>
+                                </div>
+                            </div>
+
+							<div class="row form-row">
+                                <div class="form-group">
+                                    <label for="" class="col-md-12 control-label">Arquivo .plist</label>
+                                    <div class="col-md-12">
+                                        {% render_field form.plist class='form-control required' accept='.plist' %}
+                                    </div>
+                                </div>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="if ($('#form-ipa').valid()) { $('#form-ipa').submit(); }">Confirmar</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<!--============================================ Modal - Enviar iOS ============================================-->
+<div class="modal fade" id="modal-enviar-link-ios">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">Enviar link de download (iOS)</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6 center-block">
+                        <form action="{% url 'e89_beta_testing.views.ajax_send_ios_download_link' %}" method="POST" role="form" id="form-enviar-ios">
+
+                            <div class="row form-row">
+                                <div class="form-group">
+                                    <label for="" class="col-md-12 control-label">Qual arquivo .ipa você deseja enviar?</label>
+                                    <div class="col-md-12">
+                                        {% render_field form_envio_ios.beta_app class="required form-control"%}
+                                    </div>
+                                </div>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+
+                <div class="row">
+                	<div class="col-md-12">
+                		<p class="text-center"><strong>O texto abaixo será enviado no e-mail:</strong></p>
+                		<div class="alert alert-info texto-email">
+                			{{ texto_email_ios|safe }}
+                		</div>
+                	</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="btn-confirmar-envio-ios">Confirmar</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<!--============================================ Modal - Enviar Android ============================================-->
+<div class="modal fade" id="modal-enviar-link-android">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">Enviar link de download (Android)</h4>
+            </div>
+            <div class="modal-body">
+            	<div class="row">
+            		<div class="col-md-12">
+            			<div class="alert alert-danger">
+            				<p class="text-center"><strong>Atenção:</strong> antes de enviar o e-mail com o link, os usuários deverão ter sido adicionados no <a href="https://groups.google.com" target='_blank'>grupo de testes</a>.</p>
+            			</div>
+            		</div>
+            	</div>
+                <div class="row">
+                    <div class="col-md-12 center-block">
+                        <form action="{% url 'e89_beta_testing.views.ajax_send_android_download_link' %}" method="POST" role="form" id="form-enviar-android">
+
+                            <div class="row form-row">
+                                <div class="form-group">
+                                    <label for="" class="col-md-12 control-label text-center">Qual é o link de download do aplicativo?</label>
+                                    <div class="col-md-12">
+                                        {% render_field form_envio_android.link_download class="required form-control"%}
+                                    </div>
+                                </div>
+	                            <div class="row text-center">
+	                                <p>Verificar: <a href="https://play.google.com/apps/publish/" target="_blank">https://play.google.com/apps/publish/</a></p>
+	                            </div>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+
+                <div class="row">
+                	<div class="col-md-12">
+                		<p class="text-center"><strong>O texto abaixo será enviado no e-mail:</strong></p>
+                		<div class="alert alert-info texto-email">
+                			{{ texto_email_android|safe }}
+                		</div>
+                	</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="btn-confirmar-envio-android">Confirmar</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+{% endblock %}
+
+{% block javascript %}
+<script type="text/javascript" src="/static/e89_beta_testing/js/libs/datatables/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="/static/e89_beta_testing/js/datatables_defaults.js"></script>
+<script type="text/javascript" src="/static/e89_beta_testing/js/data-tables-filter.js"></script>
+<script type="text/javascript" src="/static/e89_beta_testing/js/libs/jquery-validate/jquery.validate.min.js"></script>
+<script type="text/javascript" src="/static/e89_beta_testing/js/libs/jquery-validate/messages_pt_BR.min.js"></script>
+<script type="text/javascript" src="/static/e89_beta_testing/js/post-feedback.js"></script>
+<script type="text/javascript" src="/static/e89_beta_testing/js/post-delete.js"></script>
+<script type="text/javascript">
+$(function(){
+	$("#table-testers,#table-ipa").dataTablesFilter();
+	$("#form-ipa").validate();
+
+	//----------------------Exclusão - Beta App--------------------
+	$(".excluir-beta-app").postDelete({
+		postUrl: "{% url 'e89_beta_testing.views.ajax_delete_beta_app' id_beta_app=0 %}"
+	});
+	//----------------------Envio - iOS--------------------
+	$("#btn-enviar-link-ios").on('click', function(){
+		if ($('.check-beta').serialize() === "") {
+			alert("Selecione algum beta tester!");
+			return;
+		}
+		$("#modal-enviar-link-ios").modal("show");
+
+	});
+
+	$("#btn-confirmar-envio-ios").postFeedback({
+		modalTitle: "E-mail enviado",
+		texto: "O e-mail foi enviado.",
+		idForm: "#form-enviar-ios",
+		extraPostData: function() {
+			return $('.check-beta').serialize();
+		}
+	});
+
+	//----------------------Envio - Android--------------------
+	$("#btn-enviar-link-android").on('click', function(){
+		if ($('.check-beta').serialize() === "") {
+			alert("Selecione algum beta tester!");
+			return;
+		}
+		$("#modal-enviar-link-android").modal("show");
+
+	});
+
+	$("#btn-confirmar-envio-android").postFeedback({
+		modalTitle: "E-mail enviado",
+		texto: "O e-mail foi enviado.",
+		idForm: "#form-enviar-android",
+		extraPostData: function() {
+			return $('.check-beta').serialize();
+		}
+	});
+});
+</script>
+{% endblock %}

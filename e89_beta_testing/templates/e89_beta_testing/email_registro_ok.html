@@ -1,0 +1,33 @@
+<p>Olá,</p>
+
+<p>Você realizou seu cadastro para participar do período de testes.</p>
+
+{% if beta_tester.platform == 'ios' %}
+<p>Para dar continuidade ao seu cadastro, é preciso que você registre seu <strong>iPhone</strong> em nossa central de testes.</p>
+
+<p>Para fazer isso, você deverá acessar o link abaixo a partir do seu <strong>iPhone</strong>:</p>
+<a href="{{ url }}">{{ url }}</a>
+
+<p>Ao acessar o link, você verá a tela a seguir:</p>
+
+<img src="cid:/static/e89_beta_testing/img/udid_iphone.png">
+
+<p>Para que seu telefone seja cadastrado no grupo de testes, pressione o botão <strong>instalar</strong> na tela exibida. Será mostrada uma caixa de diálogo, alertando sobre a instalação, conforme mostra a imagem abaixo.</p>
+
+<img src="cid:/static/e89_beta_testing/img/udid_iphone_2.png">
+
+<p>Para confirmar, pressione <strong>instalar</strong> novamente.</p>
+
+<p>Não se preocupe, esse passo é necessário somente para verificarmos o número identificador do seu celular. Logo após a verificação, o perfil de configuração criado em seu telefone será automaticamente excluído, sem causar nenhuma alteração em qualquer configuração do seu celular.</p>
+{% elif beta_tester.platform == 'android' %}
+<p>Entraremos em contato em breve com maiores instruções sobre como cadastrar-se no sistema e como baixar a versão de testes do aplicativo <strong>Android</strong>.</p>
+{% else %}
+<p>Para começar a utilizar o sistema, acesse o site </a href='{{ url_login }}'>{{ url_login }}</a> e clique na parte inferior da página no link "Para cadastrar-se clique aqui." </p>
+{% endif %}
+<p>Obrigado,</p>
+
+<p>Equipe de testes</p>
+<p>--------------------------------------</p>
+<p><strong>Estúdio 89 Desenvolvimento de Software</strong></p>
+
+<p>Por favor, não responda esse e-mail. Essa é uma mensagem automática.</p>

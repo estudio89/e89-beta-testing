@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+    <dict>
+        <key>PayloadContent</key>
+        <dict>
+            <key>URL</key>
+            <string>http://{{ url }}</string>
+            <key>DeviceAttributes</key>
+            <array>
+                <string>UDID</string>
+                <string>IMEI</string>
+                <string>ICCID</string>
+                <string>VERSION</string>
+                <string>PRODUCT</string>
+            </array>
+            <key>Challenge</key>
+            <key>{{ token }}</key>
+        </dict>
+        <key>PayloadOrganization</key>
+        <string>{{ domain }}</string>
+        <key>PayloadDisplayName</key>
+        <string>Registro de testes</string>
+        <key>PayloadVersion</key>
+        <integer>1</integer>
+        <key>PayloadUUID</key>
+        <string>6fe4d02d-ee79-356f-a337-d94fe2de4958</string>
+        <key>PayloadIdentifier</key>
+        <string>br.com.estudio89.profile-service</string>
+        <key>PayloadDescription</key>
+        <string>{{ description }}</string>
+        <key>PayloadType</key>
+        <string>Profile Service</string>
+    </dict>
+</plist>

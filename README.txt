@@ -1,0 +1,229 @@
+===================================================================================================================================================================================
+
+E89 - BETA TESTING
+
+===================================================================================================================================================================================
+
+O plugin E89 - BETA TESTING permite cadastrar usuários para testar aplicativos Android e iOS.
+
+===================================================================================================================================================================================
+
+Para utilizar o plugin, seguir os passos:
+
+1) Instalar o plugin e89_tools com pip e em seguida instalar esse plugin com pip.
+
+2) No arquivo settings.py, adicionar "e89_beta_testing", "widget_tweaks" e "e89_tools" na lista de INSTALLED_APPS.
+
+3) Inserir no arquivo settings.py as opções de configuração explicadas em sequência.
+
+4) Inserir urls no arquivo urls.py:
+
+    url(r'', include("e89_beta_testing.urls")),
+
+5) Rodar ./manage.py migrate para criar tabelas.
+
+
+
+Cadastro de beta testers passo a passo
+---------------------------------------
+
+O processo de cadastro e distribuição do aplicativo Android e iOS ocorre da seguinte forma:
+
+1. O link da url de cadastro de beta testers é divulgado aos usuários desejados
+
+2. Os usuários acessam o link e realizam seu cadastro
+
+3. Ao final do cadastro, o sistema envia um email (BETA_EMAIL_REGISTRATION_OK_TEMPLATE e BETA_EMAIL_REGISTRATION_OK_SUBJECT):
+
+	3.1 iOS
+
+		3.1.1 Usuários iOS receberão no email um link para obtenção do UDID. Os usuários serão instruídos a acessarem o link
+	    a partir de seu iPhone.
+
+		3.1.2 Após acessarem o link, o UDID de cada beta tester é salvo e, ao final, é exibida a tela BETA_REGISTRATION_IPHONE_OK.
+
+	3.2 Android
+
+		3.2.1 Usuários Android receberão um link dizendo apenas que serão enviadas novas informações em breve.
+
+4. Após todos os cadastros terem sido realizados, faz-se:
+
+	4.1 iOS
+
+		4.1.1 São recolhidos todos os UDID dos usuários iOS na página de visualização dos beta testers (/testers/)
+
+		4.1.2 É compilado o aplicativo em um arquivo .ipa e .plist
+
+		4.1.3 É feito upload do arquivo .ipa e do arquivo .plist na página de visualização dos beta testers (/testers/)
+
+		4.1.4 Na mesma página, os usuários são selecionados e é escolhido qual IPA a ser enviado por e-mail.
+
+	4.2 Android
+
+		4.2.1 São recolhidos todos os e-mails dos usuários Android
+
+		4.2.2 Todos os usuários são cadastrados em um Google Group para testes
+
+		4.2.3 Através da página de visualização dos beta testers (/testers/), o link de download do aplicativo é enviado aos usuários por e-mail
+
+Para visualizar os usuários que já se inscreveram para os testes, acessar a url /testers. Essa url só é acessível para usuários com status superuser (admin).
+
+
+
+
+OPÇÕES NO ARQUIVO settings.py
+===============================
+
+Para funcionamento correto, as seguintes opções devem ser definidas no arquivo settings.py (valores mostrados como exemplo):
+
+	EMAIL_HOST_ADDRESS = 'suporte@estudio89.com.br'
+
+	BETA_REGISTRATION_ALLOWED = True
+
+	BETA_IOS_PROFILE_DESCRIPTION = BETA_IOS_PROFILE_DESCRIPTION
+
+	BETA_REGISTRATION_TEMPLATE = 'e89_beta_testing/registro.html'
+
+	BETA_REGISTRATION_OK_TEMPLATE = 'e89_beta_testing/registro_ok.html'
+
+	BETA_EMAIL_REGISTRATION_OK_TEMPLATE = 'e89_beta_testing/email_registro_ok.html'
+	BETA_EMAIL_REGISTRATION_OK_SUBJECT = 'Cadastro para testes - CRMV|PR'
+
+	BETA_EMAIL_LINK_IPHONE_TEMPLATE = 'e89_beta_testing/email_link_iphone.html'
+	BETA_EMAIL_LINK_IPHONE_SUBJECT = 'Aplicativo iOS - CRMV|PR'
+
+	BETA_EMAIL_LINK_ANDROID_TEMPLATE = 'e89_beta_testing/email_link_android.html'
+	BETA_EMAIL_LINK_ANDROID_SUBJECT = 'Aplicativo Android - CRMV|PR'
+
+	BETA_REGISTRATION_IPHONE_OK = 'e89_beta_testing/registro_iphone_ok.html'
+
+	BETA_DROPBOX_AUTHORIZATION_CODE = 'Aji4UwAEgKIAAAAAAAAACS0omLtcm_MtpC787Q_6qwLjEo5BDu1nHT81GHciY3Xv' (padrão para o e-mail adm.estudio89@gmail.com)
+
+	BETA_NOTIFY_EMAIL = 'suporte@estudio89.com.br'
+
+	BETA_LOGIN_VIEW = 'accounts.views.login'
+
+	EMAIL_HOST, EMAIL_PORT, EMAIL_HOST_USER, EMAIL_HOST_PASSWORD, EMAIL_HOST_ADDRESS
+
+
+	EMAIL_HOST_ADDRESS
+	------------------
+	Endereço de e-mail utilizado para o envio de e-mails.
+
+
+	BETA_REGISTRATION_ALLOWED
+	--------------------------
+	Valor booleano que indica se usuários podem se cadastrar para testes. Caso seja falso, gera um erro 404 nas views da aplicação.
+
+
+	BETA_USER_MODEL
+	---------------
+	Nome do model a ser associado ao atributo "user" de cada beta tester. Notação <app>.<model>
+
+
+	BETA_USER_TOKEN
+	---------------
+	Token utilizado na URL de obtenção do UDID por usuários de iphone.
+
+
+	BETA_USER_IDENTIFIER
+	--------------------
+	Atributo do BETA_USER_MODEL a ser coletado no formulário de registro para identificá-lo no banco
+	                      de dados.
+
+
+	BETA_IOS_PROFILE_DESCRIPTION
+	----------------------------
+	Descrição que aparece na tela do usuário de iphone ao clicar no link de obtenção do UDID.
+
+
+	BETA_REGISTRATION_TEMPLATE
+	--------------------------
+	Template utilizado para cadastrar usuários beta testers. O contexto enviado ao template é composto pelo formulário de registro, o qual possui os campos:
+		- name
+        - email
+        - platform (iOS, Android ou None).
+        - phone
+
+
+	BETA_REGISTRATION_OK
+	--------------------
+	Template exibido após o cadastro do beta tester, contendo apenas uma mensagem de feedback (Ex: "Cadastro realizado com sucesso.")
+
+
+	BETA_REGISTRATION_IPHONE_OK
+	---------------------------
+	Template exibido aos usuários de iPhone após a instalação do perfil de configuração para obtenção do UDID.
+
+	BETA_DROPBOX_AUTHORIZATION_CODE
+	-------------------------------
+	Código de autorização do dropbox. Quando o usuário faz upload do arquivo .plist, o mesmo é enviado para o dropbox através de sua API de integração. Esse passo é necessário porque o servidor de hospedagem do arquivo .plist precisa ser https. O código padrão para a conta dropbox adm.estudio89@gmail.com é  Aji4UwAEgKIAAAAAAAAACS0omLtcm_MtpC787Q_6qwLjEo5BDu1nHT81GHciY3Xv
+	Para mais informações de como obter o código para outra conta, visualizar https://www.dropbox.com/developers/core/start/python
+
+	BETA_NOTIFY_EMAIL
+	-----------------
+	Email que é notificado quando um beta testers se inscreve ou quando um usuário de iphone cadastra seu UDID.
+
+
+	BETA_LOGIN_VIEW
+	---------------
+	View que representa a página de login. Utilizada no e-mail enviado após um usuário ter se cadastrado para testar o sistema WEB.
+
+
+	EMAIL_HOST, EMAIL_PORT, EMAIL_HOST_USER, EMAIL_HOST_PASSWORD
+	--------------------------------------------------------------------------------
+	Opções necessárias para envio de e-mail. Olhar https://docs.djangoproject.com/en/dev/ref/settings/#email-host
+
+MODELS
+======
+
+	Essa aplicação cria dois models diferentes:
+
+		BetaTester
+		----------
+		Representa uma pessoa que se cadastrou para testar o aplicativo. Possui os seguintes atributos:
+
+		email: email do beta tester.
+		name: nome do beta tester.
+		platform: plataforma que será testada (android, iOS ou web)
+		udid: código udid do dispositivo (só utilizado para iOS)
+		phone: telefone de contato da pessoa
+		token: código de identificação do beta tester (utilizado internamente)
+
+		IphoneBetaApp
+		-------------
+		Representa uma aplicação beta do iOS. Possui os seguintes atributos:
+
+		plist_url: indica a url do arquivo .plist
+		ipa: campo de arquivo do arquivo .ipa
+		plist: campo de arquivo do arquivo .plist
+
+
+URLS
+====
+
+	A aplicação inclui as seguintes urls:
+
+	registro/
+	---------
+		Url que deve ser divulgada aos usuários para que se cadastrem como beta testers. Contém o formulário de cadastro. O template exibido nessa página é o mesmo definido na opção BETA_REGISTRATION_TEMPLATE no arquivo settings.py
+
+
+	registrar-iphone/(?P<token>[^/]+)/udid.mobileconfig
+	---------------------------------------------------
+		Um link para essa url será enviado automaticamente aos usuários iOS logo após seu cadastro como beta testers. O usuário, então, irá acessar esse link pelo e-mail e será solicitado que instale um perfil de configurações. Ao instalar o perfil, a url udid/ será chamada.
+
+	udid/
+	-----
+		Url chamada pelo dispositivo iOS logo após o usuário aceitar instalar o perfil para obtenção de udid. Sua única função é salvar o UDID e, ao finalizar, redireciona o usuário à url udid/done/.
+
+
+	udid/done/
+	----------
+		Página exibida após o UDID do usuário ter sido salvo.
+
+
+	testers/
+	--------
+		Página de administração acessível somente a superusuários que permite visualizar todos os beta testers cadastrados assim como fazer upload de novas versões de teste (iOS) e enviar links de downloads a usuários.
+

@@ -1,0 +1,163 @@
+{% extends "e89_beta_testing/base.html" %}
+{% load widget_tweaks %}
+
+{% block body %}
+
+<div class="col-md-12 center-block" style="margin-top: 5em;">
+    <div class="row text-center">
+        <img src="/static/e89_beta_testing/img/logo_e89_gde.png" alt="Estúdio 89" id="logo">
+
+        <h4 class="">Cadastro de usuários para testes</h4>
+    </div>
+    <div class="row">
+        <div class="alert alert-success col-md-6 center-block">
+            <p>Olá,</p>
+            <p>Para que você possa participar do período de testes, precisamos que você forneça os dados solicitados abaixo.</p>
+        </div>
+
+        <div class="panel col-md-6 center-block">
+            <div class="panel-body">
+
+                <form action="" id='form-beta' method="post">{% csrf_token %}
+
+                    <div class="row form-row">
+                        <div class="form-group">
+                            <label for="" class="col-md-6 control-label">Nome</label>
+                            <div class="col-md-6">
+                                {% render_field form.name class='form-control required' %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row form-row">
+                        <div class="form-group">
+                            <label for="" class="col-md-6 control-label">Sistema do celular</label>
+                            <div class="col-md-6">
+                                {% render_field form.platform class='form-control' %}
+                                <span class="help-block">Selecione o sistema do seu celular ou deixe em branco caso irá testar apenas o sistema WEB e não o aplicativo.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row form-row">
+                        <div class="form-group">
+                            <label for="" class="col-md-6 control-label">Telefone de contato (somente dígitos)
+                            </label>
+                            <div class="col-md-6">
+                                {% render_field form.phone class='form-control required' %}
+                                <span class="help-block">Insira seu DDD + telefone.</span>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row form-row">
+                        <div class="form-group">
+                            <label for="" class="col-md-6 control-label">E-mail cadastrado no celular</label>
+                            <div class="col-md-6">
+                                {% render_field form.email class='form-control required' data-rule-email="true" %}
+                            <span class="help-block"><strong>Atenção:</strong> esse deverá ser o e-mail que já está cadastrado no celular a ser utilizado nos testes. Caso você não tenha certeza qual e-mail está cadastrado no seu celular <a data-toggle="modal" href='#modal-email'>clique aqui para saber como encontrá-lo</a>. Se você não irá testar o aplicativo, apenas o sistema WEB, forneça um email no qual possamos contatá-lo.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row form-row">
+                        <div class="text-center">
+                            <input class="btn btn-success" type="submit" value="Cadastrar">
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--============================================ Modal - Email cadastrado ============================================-->
+
+<div class="modal fade" id="modal-email">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">E-mail de cadastro</h4>
+            </div>
+            <div class="modal-body">
+                <h3 class="text-center">Meu celular possui o sistema:
+                    <select name="" id="modal-sistema">
+                        <option value="android">Android</option>
+                        <option value="ios">iOS (iPhone)</option>
+                    </select>
+                </h3>
+
+                <br>
+
+                <div id="texto-android">
+                    <p>Você deverá fornecer o e-mail da conta do <strong>Google</strong> associada ao seu celular. Para encontrá-lo, siga os passos a seguir:</p>
+                    <br>
+                    <ol>
+                        <li>Acesse o aplicativo <strong>Google Play <img src="/static/e89_beta_testing/img/google_play_icon.png" alt=""></strong> no seu celular.</li>
+                        <li>Após abrir o aplicativo, clique no ícone do <strong>Google Play <img src="/static/e89_beta_testing/img/google_play_icon.png" alt=""></strong> no canto superior esquerdo.</li>
+                        <li>Será exibido um painel com diferentes opções de configuração. No topo do painel será exibido o nome e e-mail associados ao dispositivo. Esse é o e-mail que deve ser cadastrado.</li>
+                    </ol>
+                </div>
+
+                <div id="texto-ios" class="hide">
+                    <p>O endereço de e-mail a ser fornecido também é chamado de <strong>Apple ID</strong>. Para encontrá-lo, siga os passos a seguir:</p>
+                    <br>
+                    <ol>
+                        <li>Acesse o aplicativo <strong>Ajustes <img src="/static/e89_beta_testing/img/ios_settings_icon.png" alt=""></strong> no seu celular.</li>
+                        <li>Após abrir o aplicativo, clique em <strong>iCloud <img src="/static/e89_beta_testing/img/ios_icloud_icon.png" alt=""></strong>.</li>
+                        <li>Na tela mostrada, o e-mail indicado no campo <strong>Conta</strong> é o que deve ser enviado.</li>
+                    </ol>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">OK</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+{% endblock %}
+
+{% block footer %}
+{% endblock %}
+
+{% block javascript %}
+<script type="text/javascript" src="/static/e89_beta_testing/js/libs/jquery-validate/jquery.validate.min.js"></script>
+<script type="text/javascript" src="/static/e89_beta_testing/js/libs/jquery-validate/messages_pt_BR.min.js"></script>
+<script type="text/javascript">
+    $(function(){
+        //----------------------Validação--------------------
+        var googleEmail = function(curVal, element) {
+            var val = $(element).val();
+            var sistema = $('#id_platform').val();
+
+            if (sistema === 'android' && !val.endsWith('@gmail.com')) {
+                return false;
+            }
+            return true;
+        }
+        $.validator.addMethod("googleEmail",googleEmail,"Para usuários Android, esse deve ser um email '@gmail.com'.");
+        $('#form-beta').validate({
+            rules: {
+                email: {
+                    googleEmail: true
+                }
+            }
+        });
+
+        //----------------------Modal--------------------
+        $('#modal-sistema').on('change',function(ev){
+            var $target = $(ev.target);
+            if ($target.val() === 'android') {
+                $('#texto-ios').addClass('hide');
+                $('#texto-android').removeClass('hide');
+            } else {
+                $('#texto-ios').removeClass('hide');
+                $('#texto-android').addClass('hide');
+            }
+        });
+    });
+</script>
+{% endblock %}
