@@ -22,6 +22,7 @@ class BetaTesterForm(forms.ModelForm):
 class IphoneBetaAppForm(forms.ModelForm):
 	class Meta:
 		model = e89_beta_testing.models.IphoneBetaApp
+		exclude = ('id',)
 
 	def save(self, *args,**kwargs):
 		instance = super(IphoneBetaAppForm, self).save(*args,**kwargs)
