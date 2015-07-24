@@ -6,7 +6,6 @@ from django.template import loader
 from django.contrib.auth.models import Group,Permission,User
 from django.contrib.auth import authenticate
 from django.conf import settings
-from django.db.models import get_model
 
 import e89_beta_testing.models
 import sys,json,os
@@ -44,7 +43,7 @@ class EnvioIosForm(forms.Form):
 		e89_tools.tools.send_email(beta_testers,
 		subject=settings.BETA_EMAIL_LINK_IPHONE_SUBJECT,
 		template=getattr(settings,'BETA_EMAIL_LINK_IPHONE_TEMPLATE','e89_beta_testing/email_link_iphone.html'),
-		template_kwargs={'download_url':url, 'web_url':settings.WEBSITE_DOMAIN},
+		template_kwargs={'settings':settings, 'download_url':url, 'web_url':settings.WEBSITE_DOMAIN},
 		html=True)
 
 class EnvioAndroidForm(forms.Form):
@@ -61,7 +60,7 @@ class EnvioAndroidForm(forms.Form):
 		e89_tools.tools.send_email(beta_testers,
 		subject=settings.BETA_EMAIL_LINK_ANDROID_SUBJECT,
 		template=getattr(settings,'BETA_EMAIL_LINK_ANDROID_TEMPLATE','e89_beta_testing/email_link_android.html'),
-		template_kwargs={'download_url':link_download, 'web_url':settings.WEBSITE_DOMAIN},
+		template_kwargs={'settings':settings, 'download_url':link_download, 'web_url':settings.WEBSITE_DOMAIN},
 		html=True)
 
 

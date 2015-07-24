@@ -11,7 +11,7 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name='e89-beta-testing',
-    version='1.0.1',
+    version='1.0.2',
     packages=['e89_beta_testing'],
     include_package_data=True,
     license='BSD License',  # example license
