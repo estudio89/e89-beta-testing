@@ -8,7 +8,7 @@ from django.views.decorators.http import condition
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.contrib.auth.decorators import login_required,user_passes_test,permission_required
 from django.contrib.auth.models import Group
-from django.db.models import get_model
+from django.apps import apps
 from django.template import loader
 from e89_beta_testing.forms import BetaTesterForm,IphoneBetaAppForm,EnvioIosForm,EnvioAndroidForm
 from django.conf import settings
@@ -30,7 +30,7 @@ def registro_beta_tester(request):
 
 	elif request.method == 'POST':
 		email = request.POST['email']
-		BetaTester = get_model('e89_beta_testing', 'BetaTester')
+		BetaTester = apps.get_model('e89_beta_testing', 'BetaTester')
 		try:
 			instance = BetaTester.objects.get(email=email)
 		except BetaTester.DoesNotExist:
@@ -40,11 +40,14 @@ def registro_beta_tester(request):
 		assert form.is_valid(),"BetaTesterForm invalido. Errors: %s"%(form.errors)
 		beta_tester = form.save()
 
+		ios_img1 = getattr(settings, "BETA_REGISTRATION_IPHONE_IMG1", "/static/e89_beta_testing/img/udid_iphone.png")
+		ios_img2 = getattr(settings, "BETA_REGISTRATION_IPHONE_IMG2", "/static/e89_beta_testing/img/udid_iphone_2.png")
+
 		e89_tools.tools.send_email(beta_tester,
 			subject=settings.BETA_EMAIL_REGISTRATION_OK_SUBJECT,
 			template=getattr(settings,'BETA_EMAIL_REGISTRATION_OK_TEMPLATE','e89_beta_testing/email_registro_ok.html'),
-			template_kwargs={'beta_tester':beta_tester,'url':settings.WEBSITE_DOMAIN + reverse('e89_beta_testing.views.registrar_iphone',kwargs={'token':beta_tester.token}),'url_login':settings.WEBSITE_DOMAIN +reverse(settings.BETA_LOGIN_VIEW)},
-			static_images=['/static/e89_beta_testing/img/udid_iphone.png','/static/e89_beta_testing/img/udid_iphone_2.png'] if beta_tester.platform == 'ios' else [],
+			template_kwargs={'ios_img1':ios_img1, 'ios_img2':ios_img2,'beta_tester':beta_tester,'url':settings.WEBSITE_DOMAIN + reverse('e89_beta_testing.views.registrar_iphone',kwargs={'token':beta_tester.token}),'url_login':settings.WEBSITE_DOMAIN +reverse(settings.BETA_LOGIN_VIEW)},
+			static_images=[ios_img1,ios_img2] if beta_tester.platform == 'ios' else [],
 			html=True)
 
 		if hasattr(settings, 'BETA_NOTIFY_EMAIL'):
@@ -99,7 +102,7 @@ def udid(request):
 		elif key.childNodes[0].nodeValue == u'CHALLENGE':
 			token = key.nextSibling.nextSibling.firstChild.nodeValue
 
-	BetaTester = get_model("e89_beta_testing", "BetaTester")
+	BetaTester = apps.get_model("e89_beta_testing", "BetaTester")
 	beta_tester = BetaTester.objects.get(token=token)
 	beta_tester.udid = udid
 	beta_tester.save()
@@ -109,7 +112,7 @@ def udid(request):
 		e89_tools.tools.send_email(email,
 			subject='[BETA_TESTER] UDID',
 			template='e89_beta_testing/email_new_udid.html',
-			template_kwargs={'beta_tester':beta_tester})
+			template_kwargs={'beta_tester':beta_tester, 'settings': settings})
 
 	return redirect("e89_beta_testing.views.udid_done",permanent=True)
 
@@ -120,20 +123,24 @@ def udid_done(request):
 	if not getattr(settings, 'BETA_REGISTRATION_ALLOWED',True):
 		raise Http404
 
-	return render_to_response(getattr(settings,'BETA_REGISTRATION_IPHONE_OK','e89_beta_testing/registro_iphone_ok.html'))
+	return render_to_response(getattr(settings,'BETA_REGISTRATION_IPHONE_OK','e89_beta_testing/registro_iphone_ok.html'), {'settings':settings}, context_instance=RequestContext(request))
 
 @user_passes_test(lambda u: u.is_superuser)
 def view_testers(request):
 	''' Página de visualização dos beta testers cadastrados. '''
 
-	BetaTester = get_model("e89_beta_testing", "BetaTester")
-	IphoneBetaApp = get_model("e89_beta_testing", "IphoneBetaApp")
+	BetaTester = apps.get_model("e89_beta_testing", "BetaTester")
+	IphoneBetaApp = apps.get_model("e89_beta_testing", "IphoneBetaApp")
 	testers = BetaTester.objects.all()
 	beta_apps = IphoneBetaApp.objects.all()
 	form_envio_ios = EnvioIosForm()
 	form_envio_android = EnvioAndroidForm()
-	texto_email_ios = loader.render_to_string('e89_beta_testing/email_link_iphone.html',{'download_url':'<url_download>','web_url':settings.WEBSITE_DOMAIN })
-	texto_email_android = loader.render_to_string('e89_beta_testing/email_link_android.html',{'download_url':'<url_download>','web_url':settings.WEBSITE_DOMAIN })
+
+	template_email_ios = getattr(settings, 'BETA_EMAIL_LINK_IPHONE_TEMPLATE', 'e89_beta_testing/email_link_iphone.html')
+	template_email_android = getattr(settings, 'BETA_EMAIL_LINK_ANDROID_TEMPLATE', 'e89_beta_testing/email_link_android.html')
+
+	texto_email_ios = loader.render_to_string(template_email_ios,{'settings':settings, 'download_url':'<url_download>','web_url':settings.WEBSITE_DOMAIN })
+	texto_email_android = loader.render_to_string(template_email_android,{'settings':settings, 'download_url':'<url_download>','web_url':settings.WEBSITE_DOMAIN })
 	if request.method == "GET":
 		form = IphoneBetaAppForm()
 	else:
@@ -168,7 +175,7 @@ def ajax_send_android_download_link(request):
 @user_passes_test(lambda u: u.is_superuser)
 def ajax_delete_beta_app(request,id_beta_app):
 	if request.method == 'POST':
-		IphoneBetaApp = get_model('e89_beta_testing', 'IphoneBetaApp')
+		IphoneBetaApp = apps.get_model('e89_beta_testing', 'IphoneBetaApp')
 		beta_app = get_object_or_404(IphoneBetaApp,id=id_beta_app)
 		beta_app.delete()
 	return HttpResponse('[]')

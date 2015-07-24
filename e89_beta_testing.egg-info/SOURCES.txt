@@ -34,6 +34,7 @@ e89_beta_testing/static/e89_beta_testing/img/google_play_icon.png
 e89_beta_testing/static/e89_beta_testing/img/ios_icloud_icon.png
 e89_beta_testing/static/e89_beta_testing/img/ios_settings_icon.png
 e89_beta_testing/static/e89_beta_testing/img/logo_e89_gde.png
+e89_beta_testing/static/e89_beta_testing/img/logo_estudio_89.png
 e89_beta_testing/static/e89_beta_testing/img/udid_iphone.png
 e89_beta_testing/static/e89_beta_testing/img/udid_iphone_2.png
 e89_beta_testing/static/e89_beta_testing/js/.DS_Store
