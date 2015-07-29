@@ -30,6 +30,7 @@ e89_beta_testing/static/e89_beta_testing/css/libs/bootstrap/fonts/glyphicons-hal
 e89_beta_testing/static/e89_beta_testing/css/libs/bootstrap/fonts/glyphicons-halflings-regular.woff
 e89_beta_testing/static/e89_beta_testing/css/libs/bootstrap/js/bootstrap.js
 e89_beta_testing/static/e89_beta_testing/css/libs/bootstrap/js/bootstrap.min.js
+e89_beta_testing/static/e89_beta_testing/img/drawer_icon.jpg
 e89_beta_testing/static/e89_beta_testing/img/google_play_icon.png
 e89_beta_testing/static/e89_beta_testing/img/ios_icloud_icon.png
 e89_beta_testing/static/e89_beta_testing/img/ios_settings_icon.png
