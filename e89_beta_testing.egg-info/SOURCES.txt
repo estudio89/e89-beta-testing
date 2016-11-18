@@ -38,7 +38,6 @@ e89_beta_testing/static/e89_beta_testing/img/logo_e89_gde.png
 e89_beta_testing/static/e89_beta_testing/img/logo_estudio_89.png
 e89_beta_testing/static/e89_beta_testing/img/udid_iphone.png
 e89_beta_testing/static/e89_beta_testing/img/udid_iphone_2.png
-e89_beta_testing/static/e89_beta_testing/js/.DS_Store
 e89_beta_testing/static/e89_beta_testing/js/ajax-csrf.js
 e89_beta_testing/static/e89_beta_testing/js/data-tables-filter.js
 e89_beta_testing/static/e89_beta_testing/js/datatables_defaults.js
